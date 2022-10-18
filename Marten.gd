@@ -15,7 +15,7 @@ enum OWState {
 	RUN
 }
 
-var speed = 200
+var speed = 128
 var curDirection = Direction.UP
 var curState = OWState.IDLE
 var locked = false
@@ -131,10 +131,10 @@ const direction_names = ["up", "down", "right", "right"]
 const state_names = ["default", "run"]
 const hflip = [false, false, true, false]
 const boundingbox = [
-	[10, 28, -7, 7],
-	[10, 28, -7, 7],
-	[28, 10, -9, 7],
-	[28, 10, -9, 7]
+	[5, 17, 0, 0],
+	[5, 17, 0, 0],
+	[17, 5, 0, 9],
+	[17, 5, 0, 9]
 ]
 
 func configure_sprite_to_state():
