@@ -5,7 +5,7 @@
 [ext_resource path="res://maps/grass_tileset.tres" type="TileSet" id=3]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 17, 5 )
+extents = Vector2( 8, 8 )
 
 [node name="World" type="Node2D"]
 
@@ -18,12 +18,11 @@ script = ExtResource( 2 )
 
 [node name="Sprite" type="AnimatedSprite" parent="Player"]
 frames = ExtResource( 1 )
-animation = "default-right"
-frame = 1
+animation = "default-down"
 playing = true
 
 [node name="BoundingBox" type="CollisionShape2D" parent="Player"]
-position = Vector2( 0, 9 )
+position = Vector2( 0, 15 )
 shape = SubResource( 1 )
 
 [node name="TheWorld" type="TileMap" parent="."]
