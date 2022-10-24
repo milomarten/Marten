@@ -25,6 +25,8 @@ var waitingForWhat = ""
 
 onready var player = $Sprite as AnimatedSprite
 onready var bounds = $BoundingBox as CollisionShape2D
+onready var sfx = $SFX as AudioStreamPlayer
+onready var ray = $Interaction as RayCast2D
 
 func _ready():
 	pass
@@ -38,7 +40,7 @@ func is_running():
 func get_facing():
 	return curDirection
 
-func change_state(direction, state):
+func _change_state(direction, state):
 	var update = (self.curDirection != direction || 
 		self.curState != state)
 	self.curState = state
@@ -46,71 +48,72 @@ func change_state(direction, state):
 	if (update) :
 		configure_sprite_to_state()
 		
-func wait(for_what):
-	waitingTime = 0.1
+func _wait(for_what):
+	waitingTime = 0.05
 	waitingForWhat = for_what
 	
-func clear_wait():
+func _clear_wait():
 	waitingForWhat = 0
 	waitingForWhat = ""
 
-func _physics_process(delta):
-	if (!locked):
-		if (waitingTime > 0):
-			waitingTime -= delta
-			if (waitingForWhat == "stop-running"):
-				var direction = get_input_face_direction()
-				if (direction != Direction.NONE):
-					# You can break out of the debounce by hitting any direction key
-					# Prevents issues with "lag" when changing directions mid-run
-					change_state(direction, OWState.RUN)
-					clear_wait()
+func _input(event):
+	if event.is_action_pressed("ui_accept") && !self.locked:
+		var hit = ray.get_collider()
+		if hit != null && hit.has_method("interact"):
+			hit.interact(self)
 		else:
+			print("Uh...?")
+
+func _physics_process(delta):
+	if (waitingTime > 0):
+		waitingTime -= delta
+		if (waitingForWhat == "stop-running"):
 			var direction = get_input_face_direction()
-			if (waitingForWhat == "stop-running"):
-				if (direction == Direction.NONE):
-					# If direction is still none, stop running
-					change_state(get_facing(), OWState.IDLE)
-				else:
-					# If direction is present, keep running
-					change_state(direction, OWState.RUN)
-				clear_wait()
-			elif (waitingForWhat == "start-running"):
-				if (direction != Direction.NONE):
-					# Still holding the direction, so we can start running
-					change_state(direction, OWState.RUN)
-				clear_wait()
-			elif (is_idle() && direction != Direction.NONE):
-				if (curDirection != direction):
-					# If changing direction, 
-					# Face the new direction.
-					# Kick off timer to see if you should
-					# start running
-					change_state(direction, OWState.IDLE)
-					wait("start-running")
-				else:
-					# If you're already facing that way
-					# We can start running immediately
-					change_state(direction, OWState.RUN)
-			elif (is_running()):
-				if (direction == Direction.NONE):
-					# If we're running and you stop
-					# Wait a brief period.
-					# We only do a full stop
-					# If the time expires with no further presses
-					wait("stop-running")
-				else:
-					# Keep running
-					change_state(direction, OWState.RUN)
-					# Translate
-					move_and_slide(get_input_direction_vector().normalized() * speed)
+			if (direction != Direction.NONE):
+				# You can break out of the debounce by hitting any direction key
+				# Prevents issues with "lag" when changing directions mid-run
+				_change_state(direction, OWState.RUN)
+				_clear_wait()
 	else:
-		# When locked, default back to idle, facing in the
-		# correct direction.
-		change_state(get_facing(), OWState.IDLE)
-		
-func get_input_direction_vector():
-	return Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+		var direction = get_input_face_direction()
+		if (waitingForWhat == "stop-running"):
+			if (direction == Direction.NONE):
+				# If direction is still none, stop running
+				_change_state(get_facing(), OWState.IDLE)
+			else:
+				# If direction is present, keep running
+				_change_state(direction, OWState.RUN)
+			_clear_wait()
+		elif (waitingForWhat == "start-running"):
+			if (direction != Direction.NONE):
+				# Still holding the direction, so we can start running
+				_change_state(direction, OWState.RUN)
+			_clear_wait()
+		elif (is_idle() && direction != Direction.NONE):
+			if (curDirection != direction):
+				# If changing direction, 
+				# Face the new direction.
+				# Kick off timer to see if you should
+				# start running
+				_change_state(direction, OWState.IDLE)
+				_wait("start-running")
+			else:
+				# If you're already facing that way
+				# We can start running immediately
+				_change_state(direction, OWState.RUN)
+		elif (is_running()):
+			if (direction == Direction.NONE):
+				# If we're running and you stop
+				# Wait a brief period.
+				# We only do a full stop
+				# If the time expires with no further presses
+				_wait("stop-running")
+			else:
+				# Keep running
+				_change_state(direction, OWState.RUN)
+				# Translate
+				var input = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+				move_and_slide(input.normalized() * speed)
 
 func get_input_face_direction():
 	var point = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
@@ -127,24 +130,20 @@ func get_input_face_direction():
 		else:
 			return Direction.RIGHT
 
-const direction_names = ["up", "down", "right", "right"]
-const state_names = ["default", "run"]
+const animations = [
+	["default-up", "default-down", "default-right", "default-right"],
+	["run-up", "run-down", "run-right", "run-right"]
+]
 const hflip = [false, false, true, false]
-const boundingbox = [
-	[5, 17, 0, 0],
-	[5, 17, 0, 0],
-	[17, 5, 0, 9],
-	[17, 5, 0, 9]
+const ray_points = [
+	[0, -16],
+	[0, 16],
+	[-16, 0],
+	[16, 0]
 ]
 
 func configure_sprite_to_state():
-	var anim = state_names[curState] + "-" + direction_names[curDirection]
+	var anim = animations[curState][curDirection]
 	player.play(anim)
 	player.flip_h = hflip[curDirection]
-	
-	var bb = boundingbox[curDirection]
-	var shape = bounds.shape as RectangleShape2D;
-	shape.extents.x = bb[0]
-	shape.extents.y = bb[1]
-	bounds.position.x = bb[2]
-	bounds.position.y = bb[3]
+	ray.cast_to = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
