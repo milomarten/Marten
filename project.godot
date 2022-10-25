@@ -10,7 +10,7 @@ config_version=4
 
 [application]
 
-config/name="Mart"
+config/name="100 Ways to Cook an Egg"
 run/main_scene="res://World.tscn"
 config/icon="res://icon.png"
 
@@ -37,7 +37,7 @@ version_control_plugin_name="GitAPI"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "res://addons/github-integration/plugin.cfg" )
+enabled=PoolStringArray(  )
 
 [gui]
 

@@ -23,7 +23,6 @@ script = ExtResource( 2 )
 [node name="Sprite" type="AnimatedSprite" parent="OWField/Player"]
 frames = ExtResource( 1 )
 animation = "default-down"
-frame = 1
 playing = true
 
 [node name="Shadow" type="Sprite" parent="OWField/Player"]
@@ -39,7 +38,7 @@ shape = SubResource( 1 )
 [node name="Interaction" type="RayCast2D" parent="OWField/Player"]
 position = Vector2( 0, 16 )
 enabled = true
-cast_to = Vector2( -1, 17 )
+cast_to = Vector2( 0, 16 )
 
 [node name="NPC1" parent="OWField" instance=ExtResource( 6 )]
 frames = ExtResource( 1 )
