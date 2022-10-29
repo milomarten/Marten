@@ -12,13 +12,21 @@ enum Direction {
 #Represents an action
 enum OWState {
 	IDLE,
-	RUN
+	RUN,
+	SPIN
 }
 
-var speed = 128
+const RUN_SPEED = 128
+const SPIN_SPEED = 48
+const MAX_SPIN = 20
+
+var speed = RUN_SPEED
 var curDirection = Direction.UP
 var curState = OWState.IDLE
 var locked = false
+
+var spinning = false
+var spin_count = 0
 
 var waitingTime = 0.1
 var waitingForWhat = ""
@@ -27,6 +35,8 @@ onready var player = $Sprite as AnimatedSprite
 onready var bounds = $BoundingBox as CollisionShape2D
 onready var sfx = $SFX as AudioStreamPlayer
 onready var ray = $Interaction as RayCast2D
+onready var tail = $Tail as Area2D
+onready var tail_influence = $Tail/Influence as CollisionShape2D
 
 func _ready():
 	pass
@@ -55,9 +65,24 @@ func _wait(for_what):
 func _clear_wait():
 	waitingForWhat = 0
 	waitingForWhat = ""
+	
+func _start_spin():
+	spinning = true
+	speed = SPIN_SPEED
+	spin_count = 0
+	tail_influence.disabled = false
+	configure_sprite_to_state()
+	
+func _stop_spin():
+	spinning = false
+	speed = RUN_SPEED
+	tail_influence.disabled = true
+	configure_sprite_to_state()
 
 func _input(event):
-	if event.is_action_pressed("ui_accept") && !self.locked:
+	if event.is_action_pressed("ui_select"):
+		_start_spin()
+	elif event.is_action_pressed("ui_accept") && !self.locked && !self.spinning:
 		var hit = ray.get_collider()
 		if hit != null && hit.has_method("interact"):
 			hit.interact(self)
@@ -65,6 +90,9 @@ func _input(event):
 			print("Uh...?")
 
 func _physics_process(delta):
+	if !Input.is_action_pressed("ui_select") && spin_count > 0:
+		_stop_spin()
+		
 	if (waitingTime > 0):
 		waitingTime -= delta
 		if (waitingForWhat == "stop-running"):
@@ -143,7 +171,19 @@ const ray_points = [
 ]
 
 func configure_sprite_to_state():
+	if spinning:
+		player.play("spin")
+		return
 	var anim = animations[curState][curDirection]
 	player.play(anim)
 	player.flip_h = hflip[curDirection]
 	ray.cast_to = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
+
+func _on_Sprite_animation_finished():
+	if spin_count < MAX_SPIN:
+		spin_count += 1
+
+func _on_Tail_body_entered(body):
+	if body != self && body.has_method("hit"):
+		var force = body.position - bounds.global_position
+		body.hit(self, force)

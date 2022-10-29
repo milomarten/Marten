@@ -1,13 +1,17 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://sprites/player/Player1Frames.tres" type="SpriteFrames" id=1]
 [ext_resource path="res://Marten.gd" type="Script" id=2]
 [ext_resource path="res://maps/tiles/Forest.tres" type="TileSet" id=3]
 [ext_resource path="res://sprites/shadow.png" type="Texture" id=4]
+[ext_resource path="res://sprites/Ball.tscn" type="PackedScene" id=5]
 [ext_resource path="res://sprites/BasicOverworld.tscn" type="PackedScene" id=6]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 8, 8 )
+extents = Vector2( 8, 5 )
+
+[sub_resource type="CircleShape2D" id=2]
+radius = 21.0
 
 [node name="World" type="Node2D"]
 
@@ -24,25 +28,40 @@ script = ExtResource( 2 )
 frames = ExtResource( 1 )
 animation = "default-down"
 playing = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="Shadow" type="Sprite" parent="OWField/Player"]
 self_modulate = Color( 1, 1, 1, 0.627451 )
-position = Vector2( 0, 19 )
+position = Vector2( 0, 13 )
 z_index = -1
 texture = ExtResource( 4 )
 
 [node name="BoundingBox" type="CollisionShape2D" parent="OWField/Player"]
-position = Vector2( 0, 15 )
+position = Vector2( 0, 12 )
 shape = SubResource( 1 )
 
 [node name="Interaction" type="RayCast2D" parent="OWField/Player"]
-position = Vector2( 0, 16 )
+position = Vector2( 0, 10 )
 enabled = true
 cast_to = Vector2( 0, 16 )
 
+[node name="Tail" type="Area2D" parent="OWField/Player"]
+collision_mask = 2
+
+[node name="Influence" type="CollisionShape2D" parent="OWField/Player/Tail"]
+position = Vector2( 0, 5 )
+shape = SubResource( 2 )
+disabled = true
+
 [node name="NPC1" parent="OWField" instance=ExtResource( 6 )]
+collision_mask = 5
 frames = ExtResource( 1 )
 behavior = 2
+
+[node name="Ball" parent="OWField" instance=ExtResource( 5 )]
+position = Vector2( -57, -4 )
 
 [node name="TheWorld" type="TileMap" parent="."]
 tile_set = ExtResource( 3 )
@@ -52,3 +71,15 @@ tile_data = PoolIntArray( -720916, 2, 4, -720915, 2, 4, -720914, 2, 4, -720913, 
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="Walls" type="TileMap" parent="."]
+tile_set = ExtResource( 3 )
+cell_size = Vector2( 16, 16 )
+format = 1
+tile_data = PoolIntArray( -196620, 4, 0, -196619, 4, 131073, -196618, 4, 131073, -196617, 4, 131073, -196616, 4, 131073, -196615, 4, 131073, -196614, 4, 131073, -196613, 4, 131073, -196612, 4, 131073, -196611, 4, 131073, -196610, 4, 2, -131084, 4, 65536, -131074, 4, 65538, -65548, 4, 65536, -65538, 4, 65538, -12, 4, 65536, -2, 4, 65538, 65524, 4, 65536, 65534, 4, 65538, 131060, 4, 65536, 131070, 4, 65538, 196596, 4, 65536, 196606, 4, 65538, 262132, 4, 65536, 327668, 4, 65536, 327678, 4, 65538, 393204, 4, 65536, 393214, 4, 65538, 458740, 4, 65536, 458750, 4, 65538, 524276, 4, 65536, 524286, 4, 65538, 589812, 4, 131072, 589813, 4, 131073, 589814, 4, 131073, 589815, 4, 131073, 589816, 4, 131073, 589817, 4, 131073, 589818, 4, 131073, 589819, 4, 131073, 589820, 4, 131073, 589821, 4, 131073, 589822, 4, 131074 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[connection signal="animation_finished" from="OWField/Player/Sprite" to="OWField/Player" method="_on_Sprite_animation_finished"]
+[connection signal="body_entered" from="OWField/Player/Tail" to="OWField/Player" method="_on_Tail_body_entered"]
