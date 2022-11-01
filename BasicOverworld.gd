@@ -1,10 +1,21 @@
 tool
 extends KinematicBody2D
 
+enum Behavior {
+	NOTHING,
+	FACE_DOWN,
+	FACE_UP,
+	FACE_LEFT,
+	FACE_RIGHT,
+	ROTATE_CW,
+	ROTATE_CCW,
+	FACE_RANDOM
+}
+
 onready var sprite = $Sprite as AnimatedSprite
 
 export(SpriteFrames) var frames
-export(int, "Nothing", "Face Down", "Face Up", "Face Left", "Face Right", "Rotate CW", "Rotate CCW", "Face Random") var behavior
+export(Behavior) var behavior setget set_behavior
 
 var state
 
@@ -18,11 +29,17 @@ func _ready():
 		state = FaceRotate.new(false)
 	elif (behavior == 7):
 		state = FaceRandom.new()
-	state.initialize(self)
+	else:
+		state = null
+	state && state.initialize(self)
 
 func _physics_process(delta):
 	if (state && !state.done()):
 		state.execute(self, delta)
+		
+func set_behavior(b):
+	behavior = b
+	_ready()
 		
 func interact(p):
 	state = Face.new(Util.get_facing_for_angle(p.position - self.position))

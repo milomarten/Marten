@@ -2,15 +2,15 @@
 
 importer="texture"
 type="StreamTexture"
-path="res://.import/Player1.png-942fd8f96a941a0126b7393c3d9d5bd8.stex"
+path="res://.import/TreeShadow.png-1b73f4f87e0623af245c8dfcccc79690.stex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://player/Player1.png"
-dest_files=[ "res://.import/Player1.png-942fd8f96a941a0126b7393c3d9d5bd8.stex" ]
+source_file="res://maps/tiles/TreeShadow.png"
+dest_files=[ "res://.import/TreeShadow.png-1b73f4f87e0623af245c8dfcccc79690.stex" ]
 
 [params]
 
