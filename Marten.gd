@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
 # Represents a face direction
 enum Direction {
@@ -31,12 +31,12 @@ var spin_count = 0
 var waitingTime = 0.1
 var waitingForWhat = ""
 
-onready var player = $Sprite as AnimatedSprite
-onready var bounds = $BoundingBox as CollisionShape2D
-onready var sfx = $SFX as AudioStreamPlayer
-onready var ray = $Interaction as RayCast2D
-onready var tail = $Tail as Area2D
-onready var tail_influence = $Tail/Influence as CollisionShape2D
+@onready var player = $Sprite2D as AnimatedSprite2D
+@onready var bounds = $Bounds as CollisionShape2D
+@onready var sfx = $SFX as AudioStreamPlayer
+@onready var ray = $Interaction as RayCast2D
+@onready var tail = $Tail as Area2D
+@onready var tail_influence = $Tail/Influence as CollisionShape2D
 
 func _ready():
 	pass
@@ -121,7 +121,7 @@ func _physics_process(delta):
 			if (curDirection != direction):
 				# If changing direction, 
 				# Face the new direction.
-				# Kick off timer to see if you should
+				# Kick unchecked timer to see if you should
 				# start running
 				_change_state(direction, OWState.IDLE)
 				_wait("start-running")
@@ -141,7 +141,8 @@ func _physics_process(delta):
 				_change_state(direction, OWState.RUN)
 				# Translate
 				var input = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-				move_and_slide(input.normalized() * speed)
+				set_velocity(input.normalized() * speed)
+				move_and_slide()
 
 func get_input_face_direction():
 	var point = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
@@ -177,7 +178,7 @@ func configure_sprite_to_state():
 	var anim = animations[curState][curDirection]
 	player.play(anim)
 	player.flip_h = hflip[curDirection]
-	ray.cast_to = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
+	ray.target_position = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
 
 func _on_Sprite_animation_finished():
 	if spin_count < MAX_SPIN:

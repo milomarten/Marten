@@ -1,5 +1,5 @@
-tool
-extends KinematicBody2D
+@tool
+extends CharacterBody2D
 
 enum Behavior {
 	NOTHING,
@@ -12,10 +12,14 @@ enum Behavior {
 	FACE_RANDOM
 }
 
-onready var sprite = $Sprite as AnimatedSprite
+@onready var sprite = $Sprite2D as AnimatedSprite2D
 
-export(SpriteFrames) var frames
-export(Behavior) var behavior setget set_behavior
+@export var frames: SpriteFrames
+@export var behavior: Behavior :
+	get:
+		return behavior # TODOConverter40 Non existent get function 
+	set(mod_value):
+		mod_value  # TODOConverter40 Copy here content of set_behavior
 
 var state
 
@@ -48,7 +52,7 @@ func interact(p):
 	
 class Util:
 	static func get_facing_for_angle(to):
-		var theta = round(rad2deg(to.angle()))
+		var theta = round(rad_to_deg(to.angle()))
 
 		if (theta > 45):
 			if (theta >= 135):
@@ -89,7 +93,8 @@ class FaceRandom:
 	var rng = RandomNumberGenerator.new()
 	var timer
 	
-	func _init().(0):
+	func _init():
+		super(0)
 		rng.randomize()
 		self.direction = rng.randi_range(0, 3)
 		roll_timer()
@@ -116,7 +121,8 @@ class FaceRotate:
 	var next_face
 	var timer
 	
-	func _init(cw).(0):
+	func _init(cw):
+		super(0)
 		self.next_face = next_cw_face if cw else next_ccw_face
 		timer = 4.0
 	
@@ -143,7 +149,7 @@ class Walk:
 		["run-right", false, "default-right"]
 	]
 	
-	func _init(to, speed = 64):
+	func _init(to,speed = 64):
 		self.relative_final_position = to
 		self.speed = speed
 		
@@ -155,7 +161,9 @@ class Walk:
 		var direction_vector = (self.final_position - s.position).normalized() * speed
 		var facing = Util.get_facing_for_angle(self.final_position - s.position)
 		
-		s.move_and_slide(direction_vector)
+		s.set_velocity(direction_vector)
+		s.move_and_slide()
+		s.velocity
 		
 		var distance = (s.position - self.final_position).length()
 		if distance < 5:
@@ -178,7 +186,8 @@ class WalkPath:
 	var cursor = 0
 	var loop
 	
-	func _init(waypoints, loop = true, speed = 64).(waypoints[0], speed):
+	func _init(waypoints,loop = true,speed = 64):
+		super(waypoints[0], speed)
 		self.waypoints = waypoints
 		self.loop = loop
 		
@@ -194,11 +203,11 @@ class WalkPath:
 			], true, speed)
 		
 	func execute(s, delta):
-		.execute(s, delta)
-		if .done():
+		super.execute(s, delta)
+		if super.done():
 			cursor += 1
 			if (cursor < waypoints.size() || self.loop):
 				cursor = cursor % waypoints.size()
 				self.stopped = false
 				self.relative_final_position = waypoints[cursor]
-				.initialize(s)
+				super.initialize(s)
