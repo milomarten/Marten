@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3 uid="uid://cr2gxe3lrq2oh"]
+
+[ext_resource type="Script" path="res://Marten.gd" id="1_4glst"]
+[ext_resource type="SpriteFrames" uid="uid://b2v57yi6x8cya" path="res://sprites/player/Player1Frames.tres" id="2_gkqam"]
+[ext_resource type="Texture2D" uid="uid://br37xrbrviy7j" path="res://sprites/shadow.png" id="3_m0yvw"]
+
+[sub_resource type="CircleShape2D" id="2"]
+radius = 21.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_yv4pr"]
+radius = 7.0
+height = 14.0
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+z_index = 10
+motion_mode = 1
+script = ExtResource("1_4glst")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+
+[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+frames = ExtResource("2_gkqam")
+animation = &"default-down"
+playing = true
+
+[node name="Shadow" type="Sprite2D" parent="."]
+self_modulate = Color(1, 1, 1, 0.627451)
+position = Vector2(0, 13)
+z_index = -1
+texture = ExtResource("3_m0yvw")
+
+[node name="Tail" type="Area2D" parent="."]
+collision_mask = 2
+
+[node name="Influence" type="CollisionShape2D" parent="Tail"]
+position = Vector2(0, 5)
+shape = SubResource("2")
+disabled = true
+
+[node name="Interaction" type="RayCast2D" parent="."]
+position = Vector2(0, 10)
+target_position = Vector2(0, 16)
+
+[node name="Bounds" type="CollisionShape2D" parent="."]
+position = Vector2(0, 12)
+shape = SubResource("CapsuleShape2D_yv4pr")
+
+[node name="DizzyTimer" type="Timer" parent="."]
+autostart = true
+
+[connection signal="animation_finished" from="Sprite2D" to="." method="_on_Sprite_animation_finished"]
+[connection signal="body_entered" from="Tail" to="." method="_on_Tail_body_entered"]
+[connection signal="timeout" from="DizzyTimer" to="." method="_on_dizzy_timer_timeout"]

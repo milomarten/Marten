@@ -18,7 +18,7 @@ enum OWState {
 
 const RUN_SPEED = 128
 const SPIN_SPEED = 48
-const MAX_SPIN = 20
+const MAX_SPIN = 5
 
 var speed = RUN_SPEED
 var curDirection = Direction.UP
@@ -27,6 +27,8 @@ var locked = false
 
 var spinning = false
 var spin_count = 0
+var local_spin_count = 0
+var dizzy = false
 
 var waitingTime = 0.1
 var waitingForWhat = ""
@@ -69,7 +71,7 @@ func _clear_wait():
 func _start_spin():
 	spinning = true
 	speed = SPIN_SPEED
-	spin_count = 0
+	local_spin_count = 0
 	tail_influence.disabled = false
 	configure_sprite_to_state()
 	
@@ -78,11 +80,20 @@ func _stop_spin():
 	speed = RUN_SPEED
 	tail_influence.disabled = true
 	configure_sprite_to_state()
+	
+func _start_dizzy():
+	dizzy = true
+	_stop_spin()
+	
+func _stop_dizzy():
+	dizzy = false
+	self.curDirection = Direction.DOWN
+	configure_sprite_to_state()
 
 func _input(event):
-	if event.is_action_pressed("ui_select"):
+	if event.is_action_pressed("ui_select") && !self.locked && !self.spinning && !self.dizzy:
 		_start_spin()
-	elif event.is_action_pressed("ui_accept") && !self.locked && !self.spinning:
+	elif event.is_action_pressed("ui_accept") && !self.locked && !self.spinning && !self.dizzy:
 		var hit = ray.get_collider()
 		if hit != null && hit.has_method("interact"):
 			hit.interact(self)
@@ -90,7 +101,7 @@ func _input(event):
 			print("Uh...?")
 
 func _physics_process(delta):
-	if !Input.is_action_pressed("ui_select") && spin_count > 0:
+	if !Input.is_action_pressed("ui_select") && local_spin_count > 0:
 		_stop_spin()
 		
 	if (waitingTime > 0):
@@ -145,6 +156,8 @@ func _physics_process(delta):
 				move_and_slide()
 
 func get_input_face_direction():
+	if dizzy:
+		return Direction.NONE
 	var point = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
 	if (point.x == 0 && point.y == 0):
 		return Direction.NONE
@@ -160,8 +173,8 @@ func get_input_face_direction():
 			return Direction.RIGHT
 
 const animations = [
-	["default-up", "default-down", "default-right", "default-right"],
-	["run-up", "run-down", "run-right", "run-right"]
+	[&"default-up", &"default-down", &"default-right", &"default-right"],
+	[&"run-up", &"run-down", &"run-right", &"run-right"]
 ]
 const hflip = [false, false, true, false]
 const ray_points = [
@@ -173,18 +186,33 @@ const ray_points = [
 
 func configure_sprite_to_state():
 	if spinning:
-		player.play("spin")
+		player.play(&"spin")
 		return
-	var anim = animations[curState][curDirection]
-	player.play(anim)
+	elif dizzy:
+		player.play(&"dizzy")
+		return
+	var name = animations[curState][curDirection]
+	player.play(name)
 	player.flip_h = hflip[curDirection]
 	ray.target_position = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
 
 func _on_Sprite_animation_finished():
-	if spin_count < MAX_SPIN:
-		spin_count += 1
+	if self.spinning:
+		if spin_count < MAX_SPIN:
+			local_spin_count += 1
+			spin_count += 1
+			if spin_count == MAX_SPIN:
+				_start_dizzy()
 
 func _on_Tail_body_entered(body):
 	if body != self && body.has_method("hit"):
 		var force = body.position - bounds.global_position
 		body.hit(self, force)
+
+
+func _on_dizzy_timer_timeout():
+	if !self.spinning:
+		if spin_count > 0:
+			spin_count -= 1
+			if spin_count == 0:
+				_stop_dizzy()

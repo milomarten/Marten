@@ -8,6 +8,16 @@
 
 config_version=5
 
+_global_script_classes=[{
+"base": "Node2D",
+"class": &"MultiSpriteManager",
+"language": &"GDScript",
+"path": "res://MultiSpriteManager.gd"
+}]
+_global_script_class_icons={
+"MultiSpriteManager": ""
+}
+
 [application]
 
 config/name="100 Ways to Cook an Egg"
@@ -15,20 +25,10 @@ run/main_scene="res://World.tscn"
 config/features=PackedStringArray("4.0")
 config/icon="res://icon.png"
 
-[autoload]
-
-PluginSettings="*res://addons/github-integration/scripts/PluginSettings.gd"
-IconLoaderGithub="*res://addons/github-integration/scripts/IconLoaderGithub.gd"
-UserData="*res://addons/github-integration/scripts/user_data.gd"
-RestHandler="*res://addons/github-integration/scenes/RestHandler.tscn"
-
 [display]
 
 window/stretch/mode="viewport"
-window/size/width=640
-window/size/height=360
-window/size/test_width=1920
-window/size/test_height=1080
+window/stretch/scale=3.0
 
 [editor]
 
@@ -64,5 +64,7 @@ common/enable_pause_aware_picking=true
 
 [rendering]
 
+2d/snap/snap_2d_transforms_to_pixel=true
+2d/snap/snap_2d_vertices_to_pixel=true
 2d/snapping/use_gpu_pixel_snap=true
 environment/default_environment="res://default_env.tres"
