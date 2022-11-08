@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://bhkbqgqugkv3d"]
 
-[ext_resource type="PackedScene" uid="uid://cr2gxe3lrq2oh" path="res://sprites/player/Player.tscn" id="2_5y2de"]
+[ext_resource type="PackedScene" uid="uid://bndwwqhb5j7c1" path="res://sprites/player/Player.tscn" id="2_5y2de"]
 [ext_resource type="TileSet" uid="uid://341bn6ium3ch" path="res://maps/tiles/Forest.tres" id="3_g1vpj"]
 [ext_resource type="PackedScene" uid="uid://bp8wm0uddyckl" path="res://maps/tiles/Tree1.tscn" id="5_j3cnp"]
 [ext_resource type="Texture2D" uid="uid://42lvlvjwpfpo" path="res://maps/tiles/Tree1.png" id="6_uiv1o"]

@@ -8,16 +8,6 @@
 
 config_version=5
 
-_global_script_classes=[{
-"base": "Node2D",
-"class": &"MultiSpriteManager",
-"language": &"GDScript",
-"path": "res://MultiSpriteManager.gd"
-}]
-_global_script_class_icons={
-"MultiSpriteManager": ""
-}
-
 [application]
 
 config/name="100 Ways to Cook an Egg"
@@ -55,8 +45,8 @@ ui_accept={
 
 [layer_names]
 
-2d_physics/layer_2="HitSolid"
-2d_physics/layer_3="HitMutable"
+2d_physics/layer_1="People"
+2d_physics/layer_2="Hit By Tail"
 
 [physics]
 

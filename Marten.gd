@@ -187,9 +187,11 @@ const ray_points = [
 func configure_sprite_to_state():
 	if spinning:
 		player.play(&"spin")
+		player.flip_h = false
 		return
 	elif dizzy:
 		player.play(&"dizzy")
+		player.flip_h = false
 		return
 	var name = animations[curState][curDirection]
 	player.play(name)
@@ -205,10 +207,14 @@ func _on_Sprite_animation_finished():
 				_start_dizzy()
 
 func _on_Tail_body_entered(body):
-	if body != self && body.has_method("hit"):
-		var force = body.position - bounds.global_position
-		body.hit(self, force)
-
+	if body != self:
+		if body.has_method("hit"):
+			var force = body.position - bounds.global_position
+			body.hit(self, force)
+		#elif body is TileMap:
+			#todo: Determine nearest wall
+			#var self_coords = to_global(self.bounds.position)
+			#var tile_coords = body.local_to_map(self_coords)
 
 func _on_dizzy_timer_timeout():
 	if !self.spinning:

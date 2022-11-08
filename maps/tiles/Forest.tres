@@ -1011,7 +1011,7 @@ texture = ExtResource("3_wh03q")
 
 [resource]
 resource_local_to_scene = true
-physics_layer_0/collision_layer = 1
+physics_layer_0/collision_layer = 3
 terrain_set_0/mode = 0
 terrain_set_0/terrain_0/name = "Dirt"
 terrain_set_0/terrain_0/color = Color(0.764706, 0.572549, 0.454902, 1)
