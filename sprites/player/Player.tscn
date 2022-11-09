@@ -19,7 +19,7 @@ script = ExtResource("1_4glst")
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
 
-[node name="Sprite2D" type="AnimatedSprite2D" parent="."]
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
 frames = ExtResource("2_gkqam")
 animation = &"default-down"
 playing = true
@@ -49,6 +49,7 @@ shape = SubResource("CapsuleShape2D_yv4pr")
 [node name="DizzyTimer" type="Timer" parent="."]
 autostart = true
 
-[connection signal="animation_finished" from="Sprite2D" to="." method="_on_Sprite_animation_finished"]
+[connection signal="animation_finished" from="Sprite" to="." method="_on_Sprite_animation_finished"]
 [connection signal="body_entered" from="Tail" to="." method="_on_Tail_body_entered"]
+[connection signal="body_exited" from="Tail" to="." method="_on_tail_body_exited"]
 [connection signal="timeout" from="DizzyTimer" to="." method="_on_dizzy_timer_timeout"]

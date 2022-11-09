@@ -1,132 +1,99 @@
-extends CharacterBody2D
+class_name Player
+extends BaseOWSprite
 
-# Represents a face direction
-enum Direction {
-	NONE = -1,
-	UP, 
-	DOWN, 
-	LEFT, 
-	RIGHT
-}
-
-#Represents an action
-enum OWState {
-	IDLE,
-	RUN,
-	SPIN
+enum WaitingFor {
+	NONE,
+	START_RUNNING,
+	STOP_RUNNING
 }
 
 const RUN_SPEED = 128
 const SPIN_SPEED = 48
+
 const MAX_SPIN = 5
-
-var speed = RUN_SPEED
-var curDirection = Direction.UP
-var curState = OWState.IDLE
-var locked = false
-
 var spinning = false
 var spin_count = 0
 var local_spin_count = 0
 var dizzy = false
 
-var waitingTime = 0.1
-var waitingForWhat = ""
+var waitingForWhat = WaitingFor.NONE
+var debounce = load("res://util/Debounce.gd").new(0.05)
 
-@onready var player = $Sprite2D as AnimatedSprite2D
-@onready var bounds = $Bounds as CollisionShape2D
-@onready var sfx = $SFX as AudioStreamPlayer
 @onready var ray = $Interaction as RayCast2D
 @onready var tail = $Tail as Area2D
 @onready var tail_influence = $Tail/Influence as CollisionShape2D
-
-func _ready():
-	pass
 		
-func is_idle():
-	return curState == OWState.IDLE
-
-func is_running():
-	return curState == OWState.RUN
-
-func get_facing():
-	return curDirection
-
-func _change_state(direction, state):
-	var update = (self.curDirection != direction || 
-		self.curState != state)
-	self.curState = state
-	self.curDirection = direction
-	if (update) :
-		configure_sprite_to_state()
-		
-func _wait(for_what):
-	waitingTime = 0.05
+func _wait(for_what: WaitingFor):
+	debounce.reset()
 	waitingForWhat = for_what
 	
 func _clear_wait():
-	waitingForWhat = 0
-	waitingForWhat = ""
+	waitingForWhat = WaitingFor.NONE
 	
 func _start_spin():
+	print("Start Spin")
 	spinning = true
-	speed = SPIN_SPEED
+	super._set_speed(SPIN_SPEED)
 	local_spin_count = 0
 	tail_influence.disabled = false
-	configure_sprite_to_state()
+	_configure_sprite_to_state()
 	
 func _stop_spin():
+	print("Stop Spin")
 	spinning = false
-	speed = RUN_SPEED
+	super._set_speed(RUN_SPEED)
+	local_spin_count = 0
 	tail_influence.disabled = true
-	configure_sprite_to_state()
+	_configure_sprite_to_state()
 	
 func _start_dizzy():
+	print("Start Dizzy")
 	dizzy = true
 	_stop_spin()
 	
 func _stop_dizzy():
+	print("Stop Dizzy")
 	dizzy = false
 	self.curDirection = Direction.DOWN
-	configure_sprite_to_state()
+	_configure_sprite_to_state()
 
 func _input(event):
 	if event.is_action_pressed("ui_select") && !self.locked && !self.spinning && !self.dizzy:
 		_start_spin()
-	elif event.is_action_pressed("ui_accept") && !self.locked && !self.spinning && !self.dizzy:
-		var hit = ray.get_collider()
-		if hit != null && hit.has_method("interact"):
-			hit.interact(self)
-		else:
-			print("Uh...?")
+	elif event.is_action_pressed("ui_accept"):
+		if !self.locked && !self.spinning && !self.dizzy:
+			var hit = ray.get_collider()
+			if hit != null && hit.has_method("interact"):
+				hit.interact(self)
 
 func _physics_process(delta):
 	if !Input.is_action_pressed("ui_select") && local_spin_count > 0:
 		_stop_spin()
-		
-	if (waitingTime > 0):
-		waitingTime -= delta
-		if (waitingForWhat == "stop-running"):
+	
+	debounce.tick(delta)
+	
+	if (debounce.in_progress()):
+		if (waitingForWhat == WaitingFor.STOP_RUNNING):
 			var direction = get_input_face_direction()
 			if (direction != Direction.NONE):
 				# You can break out of the debounce by hitting any direction key
 				# Prevents issues with "lag" when changing directions mid-run
-				_change_state(direction, OWState.RUN)
+				run(direction)
 				_clear_wait()
 	else:
 		var direction = get_input_face_direction()
-		if (waitingForWhat == "stop-running"):
+		if (waitingForWhat == WaitingFor.STOP_RUNNING):
 			if (direction == Direction.NONE):
 				# If direction is still none, stop running
-				_change_state(get_facing(), OWState.IDLE)
+				stop_running()
 			else:
 				# If direction is present, keep running
-				_change_state(direction, OWState.RUN)
+				run(direction)
 			_clear_wait()
-		elif (waitingForWhat == "start-running"):
+		elif (waitingForWhat == WaitingFor.START_RUNNING):
 			if (direction != Direction.NONE):
 				# Still holding the direction, so we can start running
-				_change_state(direction, OWState.RUN)
+				run(direction)
 			_clear_wait()
 		elif (is_idle() && direction != Direction.NONE):
 			if (curDirection != direction):
@@ -134,49 +101,35 @@ func _physics_process(delta):
 				# Face the new direction.
 				# Kick unchecked timer to see if you should
 				# start running
-				_change_state(direction, OWState.IDLE)
-				_wait("start-running")
+				face(direction)
+				_wait(WaitingFor.START_RUNNING)
 			else:
 				# If you're already facing that way
 				# We can start running immediately
-				_change_state(direction, OWState.RUN)
+				run(direction)
 		elif (is_running()):
 			if (direction == Direction.NONE):
 				# If we're running and you stop
 				# Wait a brief period.
 				# We only do a full stop
 				# If the time expires with no further presses
-				_wait("stop-running")
+				_wait(WaitingFor.STOP_RUNNING)
 			else:
 				# Keep running
-				_change_state(direction, OWState.RUN)
+				run(direction)
 				# Translate
 				var input = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-				set_velocity(input.normalized() * speed)
-				move_and_slide()
+				move(input)
 
 func get_input_face_direction():
 	if dizzy:
 		return Direction.NONE
-	var point = Input.get_vector("ui_left", "ui_right", "ui_down", "ui_up")
+	var point = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	if (point.x == 0 && point.y == 0):
 		return Direction.NONE
-	elif (point.y > point.x):
-		if (point.y > -point.x):
-			return Direction.UP
-		else:
-			return Direction.LEFT
 	else:
-		if (point.y < -point.x):
-			return Direction.DOWN
-		else:
-			return Direction.RIGHT
+		return Angles.get_facing_for_angle(point)
 
-const animations = [
-	[&"default-up", &"default-down", &"default-right", &"default-right"],
-	[&"run-up", &"run-down", &"run-right", &"run-right"]
-]
-const hflip = [false, false, true, false]
 const ray_points = [
 	[0, -16],
 	[0, 16],
@@ -184,19 +137,16 @@ const ray_points = [
 	[16, 0]
 ]
 
-func configure_sprite_to_state():
+func _configure_sprite_to_state():
 	if spinning:
-		player.play(&"spin")
-		player.flip_h = false
-		return
+		sprite.play(&"spin")
+		sprite.flip_h = false
 	elif dizzy:
-		player.play(&"dizzy")
-		player.flip_h = false
-		return
-	var name = animations[curState][curDirection]
-	player.play(name)
-	player.flip_h = hflip[curDirection]
-	ray.target_position = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
+		sprite.play(&"dizzy")
+		sprite.flip_h = false
+	else:
+		super._configure_sprite_to_state()
+		ray.target_position = Vector2(ray_points[curDirection][0], ray_points[curDirection][1])
 
 func _on_Sprite_animation_finished():
 	if self.spinning:
@@ -206,19 +156,18 @@ func _on_Sprite_animation_finished():
 			if spin_count == MAX_SPIN:
 				_start_dizzy()
 
-func _on_Tail_body_entered(body):
-	if body != self:
-		if body.has_method("hit"):
-			var force = body.position - bounds.global_position
-			body.hit(self, force)
-		#elif body is TileMap:
-			#todo: Determine nearest wall
-			#var self_coords = to_global(self.bounds.position)
-			#var tile_coords = body.local_to_map(self_coords)
+func _on_Tail_body_entered(body: Node2D):
+	if body.has_method("hit"):
+		body.hit(self)
 
 func _on_dizzy_timer_timeout():
 	if !self.spinning:
 		if spin_count > 0:
 			spin_count -= 1
-			if spin_count == 0:
+			if spin_count == 0 and self.dizzy:
 				_stop_dizzy()
+
+
+func _on_tail_body_exited(body: Node2D):
+	if body.has_method("stop_hit"):
+		body.stop_hit(self)

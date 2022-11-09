@@ -1,10 +1,12 @@
-[gd_scene load_steps=6 format=3 uid="uid://bhkbqgqugkv3d"]
+[gd_scene load_steps=8 format=3 uid="uid://bhkbqgqugkv3d"]
 
 [ext_resource type="PackedScene" uid="uid://bndwwqhb5j7c1" path="res://sprites/player/Player.tscn" id="2_5y2de"]
 [ext_resource type="TileSet" uid="uid://341bn6ium3ch" path="res://maps/tiles/Forest.tres" id="3_g1vpj"]
 [ext_resource type="PackedScene" uid="uid://bp8wm0uddyckl" path="res://maps/tiles/Tree1.tscn" id="5_j3cnp"]
+[ext_resource type="PackedScene" uid="uid://skkic4uhaipm" path="res://sprites/NPC.tscn" id="6_6fy2s"]
 [ext_resource type="Texture2D" uid="uid://42lvlvjwpfpo" path="res://maps/tiles/Tree1.png" id="6_uiv1o"]
-[ext_resource type="PackedScene" path="res://sprites/Ball.tscn" id="7_sxetw"]
+[ext_resource type="SpriteFrames" uid="uid://d1ski2iwjf5j3" path="res://sprites/player/Player1Frames.tres" id="7_m7tiw"]
+[ext_resource type="PackedScene" uid="uid://b4xaehc7o1nvh" path="res://sprites/Ball.tscn" id="7_sxetw"]
 
 [node name="World3D" type="Node2D"]
 
@@ -30,3 +32,8 @@ position = Vector2(-153, -30)
 tree_sprite = ExtResource("6_uiv1o")
 
 [node name="Ball" parent="World" instance=ExtResource("7_sxetw")]
+
+[node name="OW" parent="World" instance=ExtResource("6_6fy2s")]
+position = Vector2(117, 15)
+frames = ExtResource("7_m7tiw")
+behavior = 0
