@@ -1,6 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://skkic4uhaipm"]
+[gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://sprites/NPC.gd" id="1"]
+[ext_resource type="Script" path="res://sprites/npcs/NPC.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://br37xrbrviy7j" path="res://sprites/shadow.png" id="2"]
 
 [sub_resource type="RectangleShape2D" id="2"]

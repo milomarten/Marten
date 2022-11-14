@@ -17,7 +17,7 @@ _global_script_classes=[{
 "base": "BaseOWSprite",
 "class": &"BasicOverworld",
 "language": &"GDScript",
-"path": "res://sprites/NPC.gd"
+"path": "res://sprites/npcs/NPC.gd"
 }, {
 "base": "BaseOWSprite",
 "class": &"Player",

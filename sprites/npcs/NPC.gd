@@ -13,13 +13,13 @@ enum Behavior {
 	FACE_RANDOM
 }
 
-@export var frames: SpriteFrames
-@export var behavior: Behavior :
+@export var frames: SpriteFrames :
 	get:
-		return behavior # TODOConverter40 Non existent get function 
+		return frames
 	set(mod_value):
-		behavior = mod_value
+		frames = mod_value
 		_ready()
+@export var behavior: Behavior
 
 var state
 
