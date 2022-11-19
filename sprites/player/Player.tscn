@@ -13,20 +13,24 @@ height = 14.0
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
 z_index = 10
+y_sort_enabled = true
 motion_mode = 1
 script = ExtResource("1_4glst")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
+position_smoothing_enabled = true
+position_smoothing_speed = 4.0
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)
+y_sort_enabled = true
 frames = ExtResource("2_gkqam")
 animation = &"default-down"
 playing = true
 
 [node name="Shadow" type="Sprite2D" parent="."]
 self_modulate = Color(1, 1, 1, 0.627451)
-position = Vector2(0, 13)
 z_index = -1
 texture = ExtResource("3_m0yvw")
 
@@ -34,16 +38,14 @@ texture = ExtResource("3_m0yvw")
 collision_mask = 2
 
 [node name="Influence" type="CollisionShape2D" parent="Tail"]
-position = Vector2(0, 5)
+position = Vector2(0, -6)
 shape = SubResource("2")
 disabled = true
 
 [node name="Interaction" type="RayCast2D" parent="."]
-position = Vector2(0, 10)
 target_position = Vector2(0, 16)
 
 [node name="Bounds" type="CollisionShape2D" parent="."]
-position = Vector2(0, 12)
 shape = SubResource("CapsuleShape2D_yv4pr")
 
 [node name="DizzyTimer" type="Timer" parent="."]
