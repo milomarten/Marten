@@ -42,9 +42,15 @@ func _physics_process(delta):
 		state.execute(self, delta)
 		
 func interact(p):
-	lock()
-	face(Angles.get_facing_for_angle(p.position - self.position))
-	print("Hey!")
+	lock_with(p)
+	face_node(p)
+	await show_text([
+		"Did you know?",
+		"According to all known laws of aviation, there is no way that a bee should be able to fly.",
+		"Its wings are too small to get its fat little body off the ground.",
+		"The bee, of course, flies anyways. Because bees don't care what humans think is impossible."
+	])
+	unlock_with(p)
 
 class Face:
 	var direction
@@ -122,11 +128,11 @@ class Walk:
 		
 	func initialize(s: BaseOWSprite):
 		self.final_position = s.position + self.relative_final_position
-		s.run(Angles.get_facing_for_angle(self.relative_final_position))
+		s.run(s.get_facing_for_angle(self.relative_final_position))
 	
 	func execute(s: BaseOWSprite, delta: float):
 		var direction_vector = (self.final_position - s.position)
-		var facing = Angles.get_facing_for_angle(self.final_position - s.position)
+		var facing = s.get_facing_for_angle(self.final_position - s.position)
 		
 		s.run(facing)
 		s.move(direction_vector)

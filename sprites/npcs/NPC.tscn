@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://44coa3ieyikq"]
 
 [ext_resource type="Script" path="res://sprites/npcs/NPC.gd" id="1"]
 [ext_resource type="Texture2D" uid="uid://br37xrbrviy7j" path="res://sprites/shadow.png" id="2"]
@@ -7,9 +7,12 @@
 size = Vector2(16, 16)
 
 [node name="OW" type="CharacterBody2D"]
-position = Vector2(89, 37)
+position = Vector2(250.409, 198.409)
 z_index = 10
+collision_layer = 5
+velocity = Vector2(90.5096, 90.5098)
 script = ExtResource("1")
+behavior = 0
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
 playing = true

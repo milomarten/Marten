@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3 uid="uid://d2n0nujgio3un"]
+
+[ext_resource type="Script" path="res://ui/textbox.gd" id="1_8tjki"]
+[ext_resource type="Theme" uid="uid://covy8x43v73jk" path="res://ui/TextboxTheme.tres" id="2_gnh11"]
+[ext_resource type="Texture2D" uid="uid://dgjhnb36qpjg3" path="res://ui/pointer.png" id="3_7226f"]
+
+[sub_resource type="Animation" id="Animation_2t377"]
+resource_name = "Arrow Bounce"
+length = 0.75
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Box/Foreground/Pointer:custom_minimum_size")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.33, 0.75),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(4, 12), Vector2(4, 10), Vector2(4, 12)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_s3vqf"]
+_data = {
+"Arrow Bounce": SubResource("Animation_2t377")
+}
+
+[node name="Textbox" type="CanvasLayer"]
+script = ExtResource("1_8tjki")
+
+[node name="Box" type="MarginContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 80.0
+offset_top = -36.0
+offset_right = -80.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 4
+theme = ExtResource("2_gnh11")
+
+[node name="Background" type="Panel" parent="Box"]
+offset_right = 992.0
+offset_bottom = 28.0
+metadata/_edit_lock_ = true
+
+[node name="Foreground" type="HBoxContainer" parent="Box"]
+offset_right = 992.0
+offset_bottom = 28.0
+
+[node name="Label" type="RichTextLabel" parent="Box/Foreground"]
+offset_right = 984.0
+offset_bottom = 28.0
+size_flags_horizontal = 3
+text = "<>"
+
+[node name="Pointer" type="TextureRect" parent="Box/Foreground"]
+custom_minimum_size = Vector2(4, 11.0947)
+offset_left = 988.0
+offset_top = 16.9053
+offset_right = 992.0
+offset_bottom = 28.0
+size_flags_vertical = 8
+texture = ExtResource("3_7226f")
+ignore_texture_size = true
+stretch_mode = 2
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_s3vqf")
+}

@@ -44,6 +44,7 @@ disabled = true
 
 [node name="Interaction" type="RayCast2D" parent="."]
 target_position = Vector2(0, 16)
+collision_mask = 4
 
 [node name="Bounds" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_yv4pr")

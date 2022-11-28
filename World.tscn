@@ -1,13 +1,17 @@
-[gd_scene load_steps=7 format=3 uid="uid://bw1rmhawqykjx"]
+[gd_scene load_steps=8 format=3 uid="uid://bwaf3fpf67vvi"]
 
+[ext_resource type="PackedScene" uid="uid://d2n0nujgio3un" path="res://ui/textbox.tscn" id="1_18t64"]
 [ext_resource type="PackedScene" uid="uid://bndwwqhb5j7c1" path="res://sprites/player/Player.tscn" id="2_5y2de"]
 [ext_resource type="TileSet" uid="uid://341bn6ium3ch" path="res://maps/tiles/Forest.tres" id="3_g1vpj"]
 [ext_resource type="PackedScene" uid="uid://bp8wm0uddyckl" path="res://maps/tiles/Tree1.tscn" id="5_j3cnp"]
-[ext_resource type="PackedScene" path="res://sprites/npcs/NPC.tscn" id="6_6fy2s"]
+[ext_resource type="PackedScene" uid="uid://44coa3ieyikq" path="res://sprites/npcs/NPC.tscn" id="6_6fy2s"]
 [ext_resource type="SpriteFrames" uid="uid://l673tnl8h6fx" path="res://sprites/npcs/arcticfox-summer.tres" id="6_55l54"]
 [ext_resource type="Texture2D" uid="uid://42lvlvjwpfpo" path="res://maps/tiles/Tree1.png" id="6_uiv1o"]
 
-[node name="World3D" type="Node2D"]
+[node name="Node" type="Node2D"]
+
+[node name="Textbox" parent="." instance=ExtResource("1_18t64")]
+visible = false
 
 [node name="World" type="TileMap" parent="."]
 y_sort_enabled = true
@@ -33,6 +37,6 @@ position = Vector2(-153, -30)
 tree_sprite = ExtResource("6_uiv1o")
 
 [node name="OW" parent="World" instance=ExtResource("6_6fy2s")]
-position = Vector2(130, 35)
+position = Vector2(-88, -22)
 frames = ExtResource("6_55l54")
 behavior = 5

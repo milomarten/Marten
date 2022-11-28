@@ -58,16 +58,19 @@ func _stop_dizzy():
 	_configure_sprite_to_state()
 
 func _input(event):
-	if event.is_action_pressed("ui_select") && !self.locked && !self.spinning && !self.dizzy:
+	if event.is_action_pressed("spin") && !self.locked && !self.spinning && !self.dizzy:
 		_start_spin()
-	elif event.is_action_pressed("ui_accept"):
+	elif event.is_action_released("interact"):
 		if !self.locked && !self.spinning && !self.dizzy:
 			var hit = ray.get_collider()
 			if hit != null && hit.has_method("interact"):
 				hit.interact(self)
 
 func _physics_process(delta):
-	if !Input.is_action_pressed("ui_select") && local_spin_count > 0:
+	if self.locked:
+		return
+		
+	if !Input.is_action_pressed("spin") && local_spin_count > 0:
 		_stop_spin()
 	
 	debounce.tick(delta)
@@ -118,17 +121,17 @@ func _physics_process(delta):
 				# Keep running
 				run(direction)
 				# Translate
-				var input = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+				var input = Input.get_vector("left", "right", "up", "down")
 				move(input)
 
 func get_input_face_direction():
 	if dizzy:
 		return Direction.NONE
-	var point = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	var point = Input.get_vector("left", "right", "up", "down")
 	if (point.x == 0 && point.y == 0):
 		return Direction.NONE
 	else:
-		return Angles.get_facing_for_angle(point)
+		return get_facing_for_angle(point)
 
 const ray_points = [
 	[0, -16],
